@@ -16,7 +16,7 @@ drive_passenger = Table(
     "drive_passenger",
     Base.metadata,
     Column("drive_id", Integer, ForeignKey("drive.id")),
-    Column("passenger_id", Integer, ForeignKey("passenger.id"))
+    Column("user_id", Integer, ForeignKey("user.id"))
 )
 
 
@@ -26,35 +26,27 @@ class Drive(Base):
     id = Column(Integer, autoincrement=True, primary_key=True)
     place_from = Column(String(255))
     place_to = Column(String(255))
-    driver = Column(Integer, ForeignKey("driver.id"))
-    driver_id = relationship("Driver", backref="drive")
+    driver_id = Column(Integer, ForeignKey("user.id"))
+    driver = relationship("User", backref="drive")
     max_passengers_amount = Column(Integer)
-    passengers = relationship('Passenger', secondary=drive_passenger, backref='drive')
+    passengers = relationship('User', secondary=drive_passenger, backref='drive')
     departure_time = Column(String(255))
     is_done = Column(Boolean, default=False)
     comment = Column(Text)
 
 
-class Driver(Base):
-    __tablename__ = "driver"
+class User(Base):
+    __tablename__ = "user"
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     chat_id = Column(Integer, unique=True)
     name = Column(String(255), nullable=True)
     surname = Column(String(255), nullable=True)
     phone_number = Column(String(20), nullable=True)
-
-
-class Passenger(Base):
-    __tablename__ = "passenger"
-
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    chat_id = Column(Integer, unique=True)
-    name = Column(String(255), nullable=True)
-    surname = Column(String(255), nullable=True)
-    phone_number = Column(String(20), nullable=True)
-    place_from = Column(String(255))
+    place_from = Column(String(255), nullable=True)
     place_to = Column(String(255), nullable=True)
+    active_search = Column(Boolean, default=False)
 
 
+# Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)
