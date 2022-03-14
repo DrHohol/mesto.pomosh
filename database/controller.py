@@ -82,3 +82,7 @@ def drive_delete_passenger(drive, passenger):
         drive.passengers.remove(passenger)
     session.commit()
     return drive
+
+
+def get_drive_by():
+    pass
