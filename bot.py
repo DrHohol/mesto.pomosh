@@ -5,7 +5,7 @@ from aiogram.dispatcher.filters import Text
 from dotenv import load_dotenv
 from keyboards import Buttons, Keyboard
 from states import States
-#from controller import Controller
+#import controller
 from datetime import datetime
 import os
 
@@ -62,44 +62,70 @@ async def choose_role(message: types.Message, state: FSMContext):
 Iм'я: {data['name']}
 Призвище: {data['surname']}
 Номер телефону: {data['number']}""",
-reply_markup=Keyboard.role_menu)
-    #Controller.get_or_create_user(data['uid']
+                         reply_markup=Keyboard.role_menu)
+    # Controller.get_or_create_user(data['uid']
    #                               data['name'], data['surname'], data['phone_number'],
    #                               reply_markup = Keyboard.role_menu)
     await state.finish()
 """ For driver """
-@dp.message_handler(Text(equals="Водій"))
-async def set_driver_menu(message : types.Message, state: FSMContext):
-    await message.answer("Добре! Що ви хочете зробити?",reply_markup=Keyboard.driver_menu)
 
-@dp.message_handler(Text(equals="Додати оголошення"),state="*")
-async def set_driver_menu(message : types.Message, state: FSMContext):
+
+@dp.message_handler(Text(equals="Водій"))
+async def set_driver_menu(message: types.Message, state: FSMContext):
+    await message.answer("Добре! Що ви хочете зробити?", reply_markup=Keyboard.driver_menu)
+
+
+@dp.message_handler(Text(equals="Додати оголошення"), state="*")
+async def set_driver_menu(message: types.Message, state: FSMContext):
     await message.answer("Какой-то биг текст с уточнениями. Выберите начальный пункт",
-        reply_markup=Buttons.select_region())
+                         reply_markup=Buttons.select_region())
     await States.from_drive.set()
+
 
 @dp.callback_query_handler(state=States.from_drive)
 async def choose_role(callback_query: types.CallbackQuery, state: FSMContext):
     #user = Controller.user_exist()
     async with state.proxy() as data:
-                data['drive_from'] = callback_query.data
+        data['drive_from'] = callback_query.data
     await callback_query.message.edit_text("Добре, тепер куди",
-        reply_markup = Buttons.select_region())
+                                           reply_markup=Buttons.select_region())
     await callback_query.answer()
     await States.to_drive.set()
+
 
 @dp.callback_query_handler(state=States.to_drive)
 async def choose_role(callback_query: types.CallbackQuery, state: FSMContext):
     #user = Controller.user_exist()
     async with state.proxy() as data:
-                data['drive_to'] = callback_query.data
-    await callback_query.message.answer("Тепер вкажiть дату у\
-форматi ДД.ММ.РР ГГ:ХХ")
+        data['drive_to'] = callback_query.data
+    await callback_query.message.answer("Скiльки пассажирiв ви можете взяти?")
     await callback_query.answer()
-    await States.date.set()
+    await States.max_pass.set()
+
+
+@dp.message_handler(state=States.max_pass)
+async def set_driver_menu(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        if message.text.isdigit() and int(message.text) >= 1:
+            data['max_pass'] = int(message.text)
+            await message.answer("Коментар (необяз)")
+            await States.comment.set()
+        else:
+            await message.answer("Помилка. Можна лише числа >= 1")
+
+
+@dp.message_handler(state=States.comment)
+async def set_driver_menu(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+
+        data['comment'] = message.text
+        await message.answer("Тепер вкажiть дату у\
+форматi ДД.ММ.РР ГГ:ХХ")
+        await States.date.set()
+
 
 @dp.message_handler(state=States.date)
-async def set_driver_menu(message : types.Message, state: FSMContext):
+async def set_driver_menu(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         try:
             data['date'] = datetime.strptime(message.text, "%d.%m.%y %H:%M")
@@ -107,9 +133,18 @@ async def set_driver_menu(message : types.Message, state: FSMContext):
             print(e)
             await message.answer(f"Wrong format")
             print(data['date'])
-    await message.answer(f"""Поiздка запланована на:{data['date']}
+    await message.answer(f"""Поїздка запланована на:{data['date']}
 Початковый пункт: {Buttons.regions[int(data['drive_from'])]}
-Кiнечний пункт: {Buttons.regions[int(data['drive_to'])]}""")
+Кiнечний пункт: {Buttons.regions[int(data['drive_to'])]}
+Пасажирiв: {data['max_pass']}
+Коментар: {data['comment']}""")
+    await state.finish()
+
+
+@dp.message_handler(Text(equals="Мої поїздки"))
+async def set_driver_menu(message: types.Message, state: FSMContext):
+    pass
+    #drives = Controller.get_drives
 
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)

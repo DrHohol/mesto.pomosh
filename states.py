@@ -12,3 +12,5 @@ class States(StatesGroup):
 	to_drive = State()
 	date = State()
 	time = State()
+	max_pass = State()
+	comment = State()
