@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy.orm import Session
 from database.models import User, Drive, engine, DrivePassenger
 
@@ -21,15 +23,16 @@ def edit_user(user, attrs):
     return user
 
 
-def create_drive(place_from, place_to, driver_id, max_passengers_amount, departure_time, comment):
+def create_drive(place_from, place_to, driver_id, max_passengers_amount, departure_time, comment=None):
     drive = Drive(
         place_from=place_from,
         place_to=place_to,
         driver_id=driver_id,
         max_passengers_amount=max_passengers_amount,
         departure_time=departure_time,
-        comment=comment
         )
+    if comment:
+        drive.comment = comment
     session.add(drive)
     session.commit()
     return drive
@@ -45,14 +48,14 @@ def edit_drive(drive, attrs):
 def drive_add_passenger(drive, passenger, num_of_passengers=1):
     if passenger not in drive.passengers and drive.max_passengers_amount > drive.current_passengers_amount:
         drive.passengers.append(passenger)
-    drive.current_passengers_amount += num_of_passengers
-    session.commit()
-    drive_pass = session.query(DrivePassenger).filter_by(
-        drive_id=drive.id,
-        user_id=passenger.id
-    ).first()
-    drive_pass.passenger_count = num_of_passengers
-    session.commit()
+        drive.current_passengers_amount += num_of_passengers
+        session.commit()
+        drive_pass = session.query(DrivePassenger).filter_by(
+            drive_id=drive.id,
+            user_id=passenger.id
+        ).first()
+        drive_pass.passenger_count = num_of_passengers
+        session.commit()
     return drive
 
 
@@ -67,13 +70,11 @@ def drive_delete_passenger(drive, passenger):
     return drive
 
 
-def get_drive_by(attrs):
+def get_drive_by(attrs, places=0):
     drive = session.query(Drive)
     for key, value in attrs.items():
         drive = drive.filter(key == value)
-    drive = drive.all()
-    if len(drive) == 1:
-        return drive[0]
+    drive = drive.filter(Drive.max_passengers_amount-Drive.current_passengers_amount >= places).all()
     return drive
 
 
@@ -83,11 +84,11 @@ def get_all_drive():
 
 if __name__ == "__main__":
     driver, created = get_or_create_user(12354)
-    drive = create_drive(place_from="da", place_to="da", driver_id=driver.id, max_passengers_amount=4, departure_time="123", comment="ads")
+    drive = create_drive(place_from="da", place_to="da", driver_id=driver.id, max_passengers_amount=4, departure_time=datetime.datetime.now(), comment="ads")
     driver = edit_user(driver, {"name": "Name", "surname": "Surname", "phone_number": "+380992345123", "max_passengers_amount": 4})
     drive = get_drive_by({Drive.place_from:"da", Drive.place_to:"da"})
     print(drive)
-    session.query(Drive).filter(Drive.place_from == "da")
-    drive = edit_drive(drive, {"current_passengers_amount": 0})
+    drive = edit_drive(drive[0], {"current_passengers_amount": 0})
     drive_add_passenger(drive, driver, 3)
     drive_delete_passenger(drive, driver)
+    print(session.query(User).first().drive)
