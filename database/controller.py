@@ -24,10 +24,13 @@ def edit_user(user, attrs):
 
 
 def create_drive(place_from, place_to, driver_id, max_passengers_amount, departure_time, comment=None):
+    driver, created = get_or_create_user(driver_id)
+    if created:
+        session.commit()
     drive = Drive(
         place_from=place_from,
         place_to=place_to,
-        driver_id=driver_id,
+        driver_id=driver.id,
         max_passengers_amount=max_passengers_amount,
         departure_time=departure_time,
         )
