@@ -8,3 +8,7 @@ class States(StatesGroup):
 	set_number = State()
 	user_from = State()
 	user_to = State()
+	from_drive = State()
+	to_drive = State()
+	date = State()
+	time = State()
