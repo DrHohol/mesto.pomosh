@@ -55,5 +55,5 @@ class User(Base):
     num_of_passengers = Column(Integer, default=1)
 
 
-Base.metadata.drop_all(engine)
+# Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)
