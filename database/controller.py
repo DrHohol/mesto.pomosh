@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from database.models import User, Drive, engine, drive_passenger
+from database.models import User, Drive, engine, DrivePassenger
 
 session = Session(engine)
 
@@ -47,26 +47,22 @@ def drive_add_passenger(drive, passenger, num_of_passengers=1):
         drive.passengers.append(passenger)
     drive.current_passengers_amount += num_of_passengers
     session.commit()
-    drive_pass = session.query(drive_passenger).filter_by(
+    drive_pass = session.query(DrivePassenger).filter_by(
         drive_id=drive.id,
         user_id=passenger.id
     ).first()
     drive_pass.passenger_count = num_of_passengers
     session.commit()
-    print(drive_pass.id)
-    print(drive_pass.passenger_count)
     return drive
 
 
 def drive_delete_passenger(drive, passenger):
     print(drive.current_passengers_amount)
     if passenger in drive.passengers:
-        drive_pass = session.query(drive_passenger).filter_by(drive_id=drive.id,user_id=passenger.id).first()
-        print(drive_pass.id)
-        print(drive_pass.passenger_count)
+        drive_pass = session.query(DrivePassenger).filter_by(drive_id=drive.id,user_id=passenger.id).first()
         drive.current_passengers_amount -= drive_pass.passenger_count
         drive.passengers.remove(passenger)
-    print(drive.current_passengers_amount, "suka blya")
+    print(drive.current_passengers_amount)
     session.commit()
     return drive
 
@@ -75,6 +71,9 @@ def get_drive_by(attrs):
     drive = session.query(Drive)
     for key, value in attrs.items():
         drive = drive.filter(key == value)
+    drive = drive.all()
+    if len(drive) == 1:
+        return drive[0]
     return drive
 
 
@@ -83,18 +82,12 @@ def get_all_drive():
 
 
 if __name__ == "__main__":
-    # some = ["da", "Da", "dA"]
-    # print(some.index("Da"))
-    # print(some[some.index("Da")])
     driver, created = get_or_create_user(12354)
-    # drive = create_drive(place_from="da", place_to="da", driver_id=driver.id, max_passengers_amount=4, departure_time="123", comment="ads")
-    driver = edit_drive(driver, {"name": "Name", "surname": "Surname", "phone_number": "+380992345123", "max_passengers_amount": 4})
-    print(driver)
-    drive = get_drive_by({Drive.place_from:"da", Drive.place_to:"da"}).first()
-    drive = edit_drive(drive, {"current_passengers_amount": 0})
+    drive = create_drive(place_from="da", place_to="da", driver_id=driver.id, max_passengers_amount=4, departure_time="123", comment="ads")
+    driver = edit_user(driver, {"name": "Name", "surname": "Surname", "phone_number": "+380992345123", "max_passengers_amount": 4})
+    drive = get_drive_by({Drive.place_from:"da", Drive.place_to:"da"})
     print(drive)
+    session.query(Drive).filter(Drive.place_from == "da")
+    drive = edit_drive(drive, {"current_passengers_amount": 0})
     drive_add_passenger(drive, driver, 3)
     drive_delete_passenger(drive, driver)
-    print(drive.passengers)
-    someshit = session.query(drive_passenger).all()
-    print(someshit)
