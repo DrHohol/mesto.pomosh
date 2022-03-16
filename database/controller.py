@@ -77,8 +77,13 @@ def get_drive_by(attrs, places=0):
     drive = session.query(Drive)
     for key, value in attrs.items():
         drive = drive.filter(key == value)
-    drive = drive.filter(Drive.max_passengers_amount-Drive.current_passengers_amount >= places).all()
+    drive = drive.filter(Drive.max_passengers_amount-Drive.current_passengers_amount >= places, Drive.is_done == False).all()
     return drive
+
+
+def delete_drive(drive):
+    session.delete(drive)
+    session.commit()
 
 
 def get_all_drive():
@@ -94,4 +99,5 @@ if __name__ == "__main__":
     drive = edit_drive(drive[0], {"current_passengers_amount": 0})
     drive_add_passenger(drive, driver, 3)
     drive_delete_passenger(drive, driver)
+    drive = get_drive_by(attrs={}, places=2)
     print(session.query(User).first().drive)
