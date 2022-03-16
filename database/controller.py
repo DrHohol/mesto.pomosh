@@ -83,6 +83,16 @@ def get_drive_by(attrs, places=0):
     return drive
 
 
+def get_user_by(place_from, place_to=None, num_of_passenger=1):
+    users = session.query(User).filter_by(User.place_from == place_from)
+    if place_to:
+        users = users.filter(User.place_to == place_to)
+    if num_of_passenger:
+        users = users.filter(User.num_of_passengers == num_of_passenger)
+    return users.all()
+
+
+
 def delete_drive(drive):
     session.delete(drive)
     session.commit()
