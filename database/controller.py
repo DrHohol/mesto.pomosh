@@ -92,7 +92,6 @@ def get_user_by(place_from, place_to=None, num_of_passenger=1):
     return users.all()
 
 
-
 def delete_drive(drive):
     session.delete(drive)
     session.commit()
