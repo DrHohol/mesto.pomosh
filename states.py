@@ -14,3 +14,6 @@ class States(StatesGroup):
 	time = State()
 	max_pass = State()
 	comment = State()
+	settings_from = State()
+	settings_to = State()
+	settings_pass = State()
