@@ -41,7 +41,8 @@ def create_drive(place_from, place_to, driver_id, max_passengers_amount, departu
     return drive
 
 
-def edit_drive(drive, attrs):
+def edit_drive(drive_id, attrs):
+    drive = session.query(Drive).filter(Drive.id == drive_id).first()
     for key, value in attrs.items():
         setattr(drive, key, value)
     session.commit()
