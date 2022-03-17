@@ -1,7 +1,7 @@
 import datetime
 
 from sqlalchemy.orm import Session
-from database.models import User, Drive, engine, DrivePassenger
+from database.models import User, Drive, engine
 
 session = Session(engine)
 
@@ -33,7 +33,7 @@ def create_drive(place_from, place_to, driver_id, max_passengers_amount, departu
         driver_id=driver.id,
         max_passengers_amount=max_passengers_amount,
         departure_time=departure_time,
-        )
+    )
     if comment:
         drive.comment = comment
     session.add(drive)
@@ -59,7 +59,8 @@ def get_drive_by(attrs, places=0):
 
 
 def get_user_by(place_from, place_to=None, num_of_passenger=None):
-    users = session.query(User).filter(User.place_from == place_from)
+    users = session.query(User).filter(User.place_from == place_from,
+                                       User.active_search == True)
     if place_to:
         users = users.filter(User.place_to == place_to)
     if num_of_passenger:
