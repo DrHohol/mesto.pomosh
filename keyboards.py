@@ -32,7 +32,7 @@ class Buttons:
 
         return edit_drive
 
-    #editing data like driver
+    #editing data as driver
     edit_menu = InlineKeyboardMarkup(row_width=1)
     edit_menu.add(InlineKeyboardButton(
         text='Кiлькiсть пасажирiв', callback_data="pass_count"))
@@ -45,7 +45,7 @@ class Buttons:
     edit_menu.add(InlineKeyboardButton(
         text='Кiнцевий пункт', callback_data='edit_to'))
 
-    #editing data like passenger
+    #editing data as passenger
     edit_data_menu = InlineKeyboardMarkup(row_width=2)
     edit_data_menu.insert(InlineKeyboardButton(
         text='Маршрут',callback_data=f'u_from'))
