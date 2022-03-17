@@ -54,7 +54,7 @@ def get_drive_by(attrs, places=0):
         if key == Drive.place_to and value == "any":
             continue
         drive = drive.filter(key == value)
-    drive = drive.filter(Drive.max_passengers_amount-Drive.current_passengers_amount >= places, Drive.is_done == False).all()
+    drive = drive.filter(Drive.max_passengers_amount >= places).all()
     return drive
 
 

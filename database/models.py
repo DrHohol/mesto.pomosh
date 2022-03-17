@@ -2,7 +2,6 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, Column, Integer, Text, String, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import Session, sessionmaker, declarative_base, relationship
-from sqlalchemy.ext.associationproxy import association_proxy
 
 
 load_dotenv()
