@@ -48,31 +48,6 @@ def edit_drive(drive, attrs):
     return drive
 
 
-def drive_add_passenger(drive, passenger, num_of_passengers=1):
-    if passenger not in drive.passengers and drive.max_passengers_amount > drive.current_passengers_amount:
-        drive.passengers.append(passenger)
-        drive.current_passengers_amount += num_of_passengers
-        session.commit()
-        drive_pass = session.query(DrivePassenger).filter_by(
-            drive_id=drive.id,
-            user_id=passenger.id
-        ).first()
-        drive_pass.passenger_count = num_of_passengers
-        session.commit()
-    return drive
-
-
-def drive_delete_passenger(drive, passenger):
-    print(drive.current_passengers_amount)
-    if passenger in drive.passengers:
-        drive_pass = session.query(DrivePassenger).filter_by(drive_id=drive.id,user_id=passenger.id).first()
-        drive.current_passengers_amount -= drive_pass.passenger_count
-        drive.passengers.remove(passenger)
-    print(drive.current_passengers_amount)
-    session.commit()
-    return drive
-
-
 def get_drive_by(attrs, places=0):
     drive = session.query(Drive)
     for key, value in attrs.items():
@@ -83,12 +58,12 @@ def get_drive_by(attrs, places=0):
     return drive
 
 
-def get_user_by(place_from, place_to=None, num_of_passenger=1):
-    users = session.query(User).filter_by(User.place_from == place_from)
+def get_user_by(place_from, place_to=None, num_of_passenger=None):
+    users = session.query(User).filter(User.place_from == place_from)
     if place_to:
         users = users.filter(User.place_to == place_to)
     if num_of_passenger:
-        users = users.filter(User.num_of_passengers == num_of_passenger)
+        users = users.filter(User.num_of_passengers <= num_of_passenger)
     return users.all()
 
 
@@ -102,13 +77,4 @@ def get_all_drive():
 
 
 if __name__ == "__main__":
-    driver, created = get_or_create_user(12354)
-    drive = create_drive(place_from="da", place_to="da", driver_id=driver.id, max_passengers_amount=4, departure_time=datetime.datetime.now(), comment="ads")
-    driver = edit_user(driver, {"name": "Name", "surname": "Surname", "phone_number": "+380992345123", "max_passengers_amount": 4})
-    drive = get_drive_by({Drive.place_from:"da", Drive.place_to:"da"})
-    print(drive)
-    drive = edit_drive(drive[0], {"current_passengers_amount": 0})
-    drive_add_passenger(drive, driver, 3)
-    drive_delete_passenger(drive, driver)
-    drive = get_drive_by(attrs={}, places=2)
-    print(session.query(User).first().drive)
+    driver, created = get_or_create_user(1235)

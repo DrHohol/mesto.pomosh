@@ -15,29 +15,16 @@ session = Session(bind=engine)
 Base = declarative_base()
 
 
-class DrivePassenger(Base):
-    __tablename__ = "drive_passenger"
-
-    drive_id = Column(ForeignKey("drive.id"), primary_key=True)
-    user_id = Column(ForeignKey("user.id"), primary_key=True)
-    drive = relationship("Drive", backref="drive_associations")
-    user = relationship("User", backref="user_associations")
-    passenger_count = Column(Integer)
-
-
 class Drive(Base):
     __tablename__ = "drive"
 
     id = Column(Integer, autoincrement=True, primary_key=True)
     place_from = Column(String(255))
     place_to = Column(String(255))
-    passengers = relationship('User', secondary="drive_passenger", backref="drive")
     driver_id = Column(Integer, ForeignKey("user.id"))
     driver = relationship("User", backref="drive_driver")
     max_passengers_amount = Column(Integer, default=4)
-    current_passengers_amount = Column(Integer, default=0)
     departure_time = Column(DateTime)
-    is_done = Column(Boolean, default=False)
     comment = Column(Text, nullable=True)
 
 
@@ -47,8 +34,7 @@ class User(Base):
     id = Column(Integer, autoincrement=True, primary_key=True)
     chat_id = Column(Integer, unique=True)
     name = Column(String(255), nullable=True)
-    surname = Column(String(255), nullable=True)
-    phone_number = Column(String(20), nullable=True)
+    contact_info = Column(String(255), nullable=True)
     place_from = Column(String(255), nullable=True)
     place_to = Column(String(255), nullable=True)
     active_search = Column(Boolean, default=False)
