@@ -15,8 +15,9 @@ class Buttons:
     def select_region(any=False):
 
         select_region = InlineKeyboardMarkup(row_width=2)
-        regions = ['dada', 'nene', 'mbmb', 'any']  # Controller.get_regions
-
+        regions = ['dada', 'nene', 'mbmb']  # Controller.get_regions
+        if any:
+            regions.append("any")
         for region in regions:
             select_region.add(InlineKeyboardButton(
                 text=region, callback_data=regions.index(region)))
