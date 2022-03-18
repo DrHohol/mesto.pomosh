@@ -19,6 +19,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 @dp.message_handler(commands=["help", "start"], state="*")
 async def hello(message: types.Message):
+    get_or_create_user(message.from_user.id)
     await message.answer("""
 Привіт 👋
 Я бот "Місце допомоги"
@@ -83,7 +84,7 @@ Iм'я: {data['name']}
 
 @dp.message_handler(Text(equals="Надати допомогу"), state='*')
 async def set_driver_menu(message: types.Message, state: FSMContext):
-    if state:
+    if await state.get_state():
         await state.finish()
     if controller.get_or_create_user(message.from_user.id)[1]:
         await message.answer("Щоб продовжити введiть iнформацiю про себе. Почнемо з iм'я:")
@@ -353,28 +354,32 @@ async def get_drives(message: types.Message, state: FSMContext):
 
     user = controller.get_or_create_user(message.from_user.id)[0]
 
-    if user.place_from:
-        controller.edit_user(user,
-                             {'num_of_passengers': int(message.text)})
-        await message.answer("iнформацiю оновлено. Показати оголошення?",
-                             reply_markup=Buttons.find)
-        await state.finish()
-    else:
-        async with state.proxy() as data:
+    passengers = message.text
+    if passengers.isdigit() and int(passengers) >= 1:
+        if user.place_from:
             controller.edit_user(user,
-                                 {'place_from': Buttons.regions[int(data['drive_from'])],
-                                  'place_to': Buttons.regions[int(data['drive_to'])],
-                                  'num_of_passengers': int(message.text)})
+                                 {'num_of_passengers': int(message.text)})
+            await message.answer("iнформацiю оновлено. Показати оголошення?",
+                                 reply_markup=Buttons.find)
+            await state.finish()
+        else:
+            async with state.proxy() as data:
+                controller.edit_user(user,
+                                     {'place_from': Buttons.regions[int(data['drive_from'])],
+                                      'place_to': Buttons.regions[int(data['drive_to'])],
+                                      'num_of_passengers': int(message.text)})
 
-        await message.answer("Инфо есть. ща подборка")
-        await state.finish()
-        drives = controller.get_drive_by({
-            Drive.place_from: Buttons.regions[int(data['drive_from'])],
-            Drive.place_to: Buttons.regions[int(data['drive_to'])]},
-            places=int(message.text))
-        for drive in drives:
-            await message.answer(
-                generate_info(drive))
+            await message.answer("Инфо есть. ща подборка")
+            await state.finish()
+            drives = controller.get_drive_by({
+                Drive.place_from: Buttons.regions[int(data['drive_from'])],
+                Drive.place_to: Buttons.regions[int(data['drive_to'])]},
+                places=int(message.text))
+            for drive in drives:
+                await message.answer(
+                    generate_info(drive))
+        else:
+            await message.answer("Невiрний формат. Можна тiлькi цифри бiльше 0")
 
 
 @dp.callback_query_handler(Text(equals='find_pass'))
@@ -406,7 +411,7 @@ async def settings(message: types.Message, state: FSMContext):
 
 @dp.message_handler(Text(equals="Нотифи о новых"), state="*")
 async def notify(message: types.Message, state: FSMContext):
-    if state.get_state():
+    if await state.get_state():
         await state.finish()
     user = controller.get_or_create_user(message.from_user.id)[0]
     print(user.active_search)
