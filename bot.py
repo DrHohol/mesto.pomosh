@@ -19,7 +19,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 @dp.message_handler(commands=["help", "start"], state="*")
 async def hello(message: types.Message):
-    get_or_create_user(message.from_user.id)
+    controller.get_or_create_user(message.from_user.id)
     await message.answer("""
 Привіт 👋
 Я бот "Місце допомоги"
@@ -38,7 +38,6 @@ async def my_drives(message: types.Message, state: FSMContext):
     if await state.get_state():
         await state.finish()
     user = controller.get_or_create_user(message.from_user.id)[0]
-    print(user.id)
     drives = controller.get_drive_by({Drive.driver_id: user.id})
     for drive in drives:
         await message.answer(generate_info(drive),
@@ -196,43 +195,46 @@ async def add_drive(message: types.Message, state: FSMContext):
                 await state.finish()
                 del data['editing']
             else:
-                await message.answer(f"""
-✅ Ваша поїздка про допомогу створена
-
-📍 Маршрут: {Buttons.regions[int(data['drive_from'])]} → {Buttons.regions[int(data['drive_to'])]}
-🕒 Дата та час: {data['date']}
-👫 Загальна кількість місць: {data['max_pass']}
-📢 Важлива інформація: {data['comment']}
-
-Дякуємо вам 🙏""")
-                controller.create_drive(Buttons.regions[int(data['drive_from'])],
+                drive = controller.create_drive(Buttons.regions[int(data['drive_from'])],
                                         Buttons.regions[int(data['drive_to'])],
                                         message.from_user.id,
                                         data['max_pass'],
                                         data['date'],
                                         data['comment'])
-                await send_notify(data)
+                await message.answer(f"""
+✅ Ваша поїздка про допомогу створена
+
+📍 Маршрут: {drive.place_from} → {drive.place_to}
+🕒 Дата та час: {drive.departure_time}
+👫 Загальна кількість місць: {drive.max_passengers_amount}
+📞 Спосiб зв’язку: {drive.driver.contact_info}
+📢 Важлива інформація: {drive.comment}
+
+Дякуємо вам 🙏""")
+                await send_notify(drive)
                 await state.finish()
         except Exception as e:
             print(e)
             await message.answer(f"Упс, ви не вірно ввели дату. Спробуйте знову і запишіть дату та час згідно прикладу👇")
 
 
-async def send_notify(data):
+async def send_notify(drive):
     users = controller.get_user_by(
-        Buttons.regions[int(data['drive_from'])],
-        Buttons.regions[int(data['drive_to'])],
-        data['max_pass'])
+        drive.place_from,
+        drive.place_to,
+        drive.max_passengers_amount)
     print(users)
     if users:
         for user in users:
             await bot.send_message(
                 user.chat_id,
-                text=f"""Поїздка запланована на:{data['date']}
-Початковый пункт: {Buttons.regions[int(data['drive_from'])]}
-Кiнечний пункт: {Buttons.regions[int(data['drive_to'])]}
-Пасажирiв: {data['max_pass']}
-Коментар: {data['comment']}""")
+                text=f"""
+✅ Знайдена нова поїздка для вас
+📍 Маршрут: {drive.place_from} → {drive.place_to}
+🕒 Дата та час: {drive.departure_time}
+👫 Загальна кількість місць: {drive.max_passengers_amount}
+📞 Спосiб зв’язку: {drive.driver.contact_info}
+📢 Важлива інформація: {drive.comment}""")
     # print(users[0].name)
 
 
