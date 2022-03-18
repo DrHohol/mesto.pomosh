@@ -12,11 +12,13 @@ class Buttons:
     select_role.insert(InlineKeyboardButton(
         text="Водій", callback_data="driver"))
 
-    def select_region(any=False):
+    def select_region(nowhere=False):
 
         select_region = InlineKeyboardMarkup(row_width=2)
-        regions = ['dada', 'nene', 'mbmb', 'any']  # Controller.get_regions
+        regions = ['dada', 'nene', 'mbmb']  # Controller.get_regions
 
+        if nowhere:
+            regions.append('any')
         for region in regions:
             select_region.add(InlineKeyboardButton(
                 text=region, callback_data=regions.index(region)))
@@ -39,11 +41,9 @@ class Buttons:
     edit_menu.add(InlineKeyboardButton(
         text='Дату', callback_data='date_edit'))
     edit_menu.add(InlineKeyboardButton(
-        text='Коментар', callback_data='edit_com'))
+        text='Коментар', callback_data='com_edit'))
     edit_menu.add(InlineKeyboardButton(
-        text='Мiсце виезду', callback_data='edit_from'))
-    edit_menu.add(InlineKeyboardButton(
-        text='Кiнцевий пункт', callback_data='edit_to'))
+        text='Маршрут', callback_data='route'))
 
     #editing data as passenger
     edit_data_menu = InlineKeyboardMarkup(row_width=2)
@@ -60,8 +60,8 @@ class Buttons:
 class Keyboard:
 
     role_menu = ReplyKeyboardMarkup(resize_keyboard=True)
-    role_menu.add('Я Водій')
-    role_menu.add('Я Пасажир')
+    role_menu.add('Надати допомогу')
+    role_menu.add('Шукати допомогу')
 
     def menu(role):
         driver_menu = ReplyKeyboardMarkup(
@@ -69,11 +69,11 @@ class Keyboard:
 
         if role == "Я Пасажир":
             driver_menu.add("Нотифи о новых")
-            driver_menu.insert('Я Водій')
+            driver_menu.insert('Надати допомогу')
             driver_menu.add('Налаштування')
         elif role == "Я Водій":
             driver_menu.add("Мої поїздки")
             driver_menu.insert("Додати оголошення")
-            driver_menu.add('Я Пасажир')
+            driver_menu.add('Шукати допомогу')
 
         return driver_menu
