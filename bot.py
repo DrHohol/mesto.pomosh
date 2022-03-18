@@ -378,8 +378,8 @@ async def get_drives(message: types.Message, state: FSMContext):
             for drive in drives:
                 await message.answer(
                     generate_info(drive))
-        else:
-            await message.answer("Невiрний формат. Можна тiлькi цифри бiльше 0")
+    else:
+        await message.answer("Невiрний формат. Можна тiлькi цифри бiльше 0")
 
 
 @dp.callback_query_handler(Text(equals='find_pass'))
