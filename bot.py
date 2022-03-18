@@ -205,7 +205,7 @@ async def add_drive(message: types.Message, state: FSMContext):
 ✅ Ваша поїздка про допомогу створена
 
 📍 Маршрут: {drive.place_from} → {drive.place_to}
-🕒 Дата та час: {drive.departure_time}
+🕒 Дата та час: {drive.departure_time.strftime("%d.%m.%y %H:%M")}
 👫 Загальна кількість місць: {drive.max_passengers_amount}
 📞 Спосiб зв’язку: {drive.driver.contact_info}
 📢 Важлива інформація: {drive.comment}
@@ -231,7 +231,7 @@ async def send_notify(drive):
                 text=f"""
 ✅ Знайдена нова поїздка для вас
 📍 Маршрут: {drive.place_from} → {drive.place_to}
-🕒 Дата та час: {drive.departure_time}
+🕒 Дата та час: {drive.departure_time.strftime("%d%m%y %H:%M")}
 👫 Загальна кількість місць: {drive.max_passengers_amount}
 📞 Спосiб зв’язку: {drive.driver.contact_info}
 📢 Важлива інформація: {drive.comment}""")
