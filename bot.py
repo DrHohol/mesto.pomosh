@@ -311,7 +311,8 @@ async def passenger_menu(message: types.Message, state: FSMContext):
             places=user.num_of_passengers)
         for drive in drives:
             await message.answer(
-                generate_info(drive))
+                generate_info(drive),
+                reply_markup=Keyboard.menu('Я Пасажир'))
 
 
 @dp.callback_query_handler(state=States.settings_from)
@@ -379,7 +380,8 @@ async def get_drives(message: types.Message, state: FSMContext):
                 places=int(message.text))
             for drive in drives:
                 await message.answer(
-                    generate_info(drive))
+                    generate_info(drive),
+                    reply_markup=Keyboard.menu('Я Пасажир'))
     else:
         await message.answer("Невiрний формат. Можна тiлькi цифри бiльше 0")
 
@@ -400,7 +402,8 @@ async def choose_role(callback_query: types.CallbackQuery):
     for drive in drives:
         await bot.send_message(
             callback_query.from_user.id,
-            generate_info(drive))
+            generate_info(drive),
+            reply_markup=Keyboard.menu('Я Пасажир'))
 
 
 @dp.message_handler(Text(equals="Налаштування"), state="*")
@@ -411,7 +414,7 @@ async def settings(message: types.Message, state: FSMContext):
                          reply_markup=Buttons.edit_data_menu)
 
 
-@dp.message_handler(Text(equals="Нотифи о новых"), state="*")
+@dp.message_handler(Text(equals="Повідомлення"), state="*")
 async def notify(message: types.Message, state: FSMContext):
     if await state.get_state():
         await state.finish()
@@ -420,12 +423,12 @@ async def notify(message: types.Message, state: FSMContext):
     if user.active_search:
         controller.edit_user(user,
                              {'active_search': False})
-        await message.answer("Нотифи выкл",
+        await message.answer("Ваші повідомлення вимкнуті",
                              reply_markup=Keyboard.menu("Я Пасажир"))
     else:
         controller.edit_user(user,
                              {'active_search': True})
-        await message.answer("Нотифи вкл",
+        await message.answer("Ваші повідомлення увімкнені",
                              reply_markup=Keyboard.menu("Я Пасажир"))
 
 

@@ -68,7 +68,7 @@ class Keyboard:
             resize_keyboard=True, one_time_keyboard=True,)
 
         if role == "Я Пасажир":
-            driver_menu.add("Нотифи о новых")
+            driver_menu.add("Повідомлення")
             driver_menu.insert('Надати допомогу')
             driver_menu.add('Налаштування')
         elif role == "Я Водій":
