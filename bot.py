@@ -358,23 +358,26 @@ async def set_finish(callback_query: types.CallbackQuery, state: FSMContext):
         await callback_query.message.edit_reply_markup(Buttons.select_region(
             nowhere=True,page=int(page)))
     else:
-        async with state.proxy() as data:
-            data['drive_to'] = callback_query.data
-
-        user = controller.get_or_create_user(
-            callback_query.from_user.id)[0]
-        if user.num_of_passengers:
-            controller.edit_user(user,
-                                 {'place_from': Buttons.regions[int(data['drive_from'])],
-                                  'place_to': Buttons.regions[int(callback_query.data)]})
-            await callback_query.message.edit_text("Оновлено!",
-                                                   reply_markup=Buttons.find)
-            await state.finish()
-
+        not if callback_query.message.text.isdigit():
+            state.finish()
         else:
-            await callback_query.message.edit_text("👫 Скільки місць в авто вам потрібно?👇",
-                                                   reply_markup=None)
-            await States.settings_pass.set()
+            async with state.proxy() as data:
+                data['drive_to'] = callback_query.data
+
+            user = controller.get_or_create_user(
+                callback_query.from_user.id)[0]
+            if user.num_of_passengers:
+                controller.edit_user(user,
+                                     {'place_from': Buttons.regions[int(data['drive_from'])],
+                                      'place_to': Buttons.regions[int(callback_query.data)]})
+                await callback_query.message.edit_text("Оновлено!",
+                                                       reply_markup=Buttons.find)
+                await state.finish()
+
+            else:
+                await callback_query.message.edit_text("👫 Скільки місць в авто вам потрібно?👇",
+                                                       reply_markup=None)
+                await States.settings_pass.set()
 
 
 @dp.message_handler(state=States.settings_pass)
@@ -459,9 +462,8 @@ async def notify(message: types.Message, state: FSMContext):
 """ Editing user info """
 
 
-@dp.callback_query_handler(Text(equals='nm_chng'))
+@dp.callback_query_handler(Text(equals='nm_chng'),state="*")
 async def change_name(callback_query: types.CallbackQuery, state: FSMContext):
-
     await callback_query.message.answer("Введiть нове iм'я")
     await callback_query.answer()
     await States.set_name.set()
