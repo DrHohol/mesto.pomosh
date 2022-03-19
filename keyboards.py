@@ -2,9 +2,14 @@ from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup,
                            KeyboardButton, ReplyKeyboardMarkup)
 #from controller import Controller
 
-
 class Buttons:
-    regions = ['dada', 'nene', 'mbmb', 'any']
+
+    regions = ["Вінницька область", "Волинська область", "Дніпропетровська область",
+           "Донецька область", "Житомирська область", "Закарпатська область", "Запорізька область",
+           "Івано-Франківська область", "Київська область", "Кіровоградська область", "Луганська область", "Львівська область",
+           "Миколаївська область", "Одеська область", "Полтавська область", "Рівненська область", "Сумська область",
+           "Тернопільська область", "Харківська область", "Херсонська область", "Хмельницька область", "Черкаська область",
+           "Чернівецька область", "Чернігівська область"]
 
     select_role = InlineKeyboardMarkup()
     select_role.insert(InlineKeyboardButton(
@@ -12,16 +17,29 @@ class Buttons:
     select_role.insert(InlineKeyboardButton(
         text="Водій", callback_data="driver"))
 
-    def select_region(nowhere=False):
+    def select_region(nowhere=False,page=1):
 
         select_region = InlineKeyboardMarkup(row_width=2)
-        regions = ['dada', 'nene', 'mbmb']  # Controller.get_regions
 
         if nowhere:
-            regions.append('any')
-        for region in regions:
+            Buttons.regions.insert(0,"За кордон")
+        else:
+            Buttons.regions = ["Мариуполь", "Изюм", "Чугуїв", "Ахтирка",
+            "Краматорськ", "Слав'янськ", "Лисичанськ"] + Buttons.regions
+
+        if len(Buttons.regions) <= page*5+5:
+            for region in Buttons.regions[page*5:]:
+                select_region.add(InlineKeyboardButton(
+                    text=region, callback_data=Buttons.regions.index(region)))
+        else:
+            for region in Buttons.regions[page*5:page*5+5]:
+                select_region.add(InlineKeyboardButton(
+                    text=region, callback_data=Buttons.regions.index(region)))
             select_region.add(InlineKeyboardButton(
-                text=region, callback_data=regions.index(region)))
+                text='Наступна сторiнка',callback_data=f'page_{page+1}'))
+        if page != 1:
+            select_region.add(InlineKeyboardButton(
+                text='Попередня сторiнка',callback_data=f'page_{page-1}'))
         return select_region
 
     def edit_drive_button(drive_id):
@@ -46,7 +64,6 @@ class Buttons:
         text='Маршрут', callback_data='route'))
 
     #editing data as passenger
-    def edit_user_data(role):
     edit_data_menu = InlineKeyboardMarkup(row_width=2)
     edit_data_menu.insert(InlineKeyboardButton(
         text='Маршрут',callback_data=f'u_from'))
