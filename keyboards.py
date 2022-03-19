@@ -46,6 +46,7 @@ class Buttons:
         text='Маршрут', callback_data='route'))
 
     #editing data as passenger
+    def edit_user_data(role):
     edit_data_menu = InlineKeyboardMarkup(row_width=2)
     edit_data_menu.insert(InlineKeyboardButton(
         text='Маршрут',callback_data=f'u_from'))
@@ -53,6 +54,8 @@ class Buttons:
         text='Кiлькiсть', callback_data=f'u_count'))
     edit_data_menu.insert(InlineKeyboardButton(
         text="iм'я",callback_data="nm_chng"))
+    edit_data_menu.insert(InlineKeyboardButton(
+        text='Спосiб зв’язку',callback_data='ph_chng'))
     #For search
     find = InlineKeyboardMarkup().insert(InlineKeyboardButton(
         text='Показати',callback_data='find_pass'))

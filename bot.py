@@ -69,15 +69,22 @@ async def choose_role(message: types.Message, state: FSMContext):
     #user = Controller.user_exist()
     async with state.proxy() as data:
         data['phone_number'] = message.text
-    await States.set_number.set()
-    await message.answer(f"""
-Вашi даннi:
-Iм'я: {data['name']}
-Спосiб зв'язку: {data['phone_number']}""",
+    if data.get('editing'):
+        controller.edit_user(
+            controller.get_or_create_user(message.from_user.id)[0],
+            {'contact_info':message.text})
+        await state.finish()
+        await message.answer("iнформацiю оновлено.",
             reply_markup=Keyboard.menu('Я Водій'))
-    controller.edit_user(controller.get_or_create_user(data['uid'])[0],
-                         {'name': data['name'], 'contact_info': data['phone_number']})
-    await state.finish()
+    else:
+        await message.answer(f"""
+    Вашi даннi:
+    Iм'я: {data['name']}
+    Спосiб зв'язку: {data['phone_number']}""",
+                reply_markup=Keyboard.menu('Я Водій'))
+        controller.edit_user(controller.get_or_create_user(data['uid'])[0],
+                             {'name': data['name'], 'contact_info': data['phone_number']})
+        await state.finish()
 """ For driver """
 
 
@@ -254,7 +261,7 @@ async def edit_drive(callback_query: types.CallbackQuery, state: FSMContext):
         data['current_drive'] = drive_id
         data['editing'] = True
     await callback_query.message.answer('Що ви хочете змiнити?',
-                                        reply_markup=Buttons.edit_menu)
+                                        reply_markup=Buttons.edit_user_data)
     await callback_query.answer()
 
 
@@ -411,7 +418,7 @@ async def settings(message: types.Message, state: FSMContext):
     if await state.get_state():
         await state.finish()
     await message.answer("Шо ви хочете змiнити?",
-                         reply_markup=Buttons.edit_data_menu)
+                         reply_markup=Buttons.edit_menu)
 
 
 @dp.message_handler(Text(equals="Повідомлення"), state="*")
@@ -419,7 +426,6 @@ async def notify(message: types.Message, state: FSMContext):
     if await state.get_state():
         await state.finish()
     user = controller.get_or_create_user(message.from_user.id)[0]
-    print(user.active_search)
     if user.active_search:
         controller.edit_user(user,
                              {'active_search': False})
@@ -441,6 +447,14 @@ async def change_name(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.message.answer("Введiть нове iм'я")
     await callback_query.answer()
     await States.set_name.set()
+
+@dp.callback_query_handler(Text(equals='ph_chng'))
+async def change_name(callback_query: types.CallbackQuery, state: FSMContext):
+    async with state.proxy() as data:
+        data['editing'] = True
+    await callback_query.message.answer("Вкажiть спосіб зв'язку")
+    await callback_query.answer()
+    await States.set_number.set()
 
 
 @dp.callback_query_handler(Text(equals='u_count'))
