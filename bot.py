@@ -269,7 +269,7 @@ async def edit_drive(callback_query: types.CallbackQuery, state: FSMContext):
         data['current_drive'] = drive_id
         data['editing'] = True
     await callback_query.message.answer('Що ви хочете змiнити?',
-                                        reply_markup=Buttons.edit_user_data)
+                                        reply_markup=Buttons.edit_menu)
     await callback_query.answer()
 
 
