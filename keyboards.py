@@ -72,6 +72,7 @@ class Keyboard:
             driver_menu.insert('Надати допомогу')
             driver_menu.add('Налаштування')
         elif role == "Я Водій":
+            driver_menu.add('Налаштування')
             driver_menu.add("Мої поїздки")
             driver_menu.insert("Додати оголошення")
             driver_menu.add('Шукати допомогу')
