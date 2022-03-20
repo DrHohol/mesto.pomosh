@@ -94,13 +94,13 @@ class Keyboard:
             resize_keyboard=True, one_time_keyboard=True,)
 
         if role == "Я Пасажир":
-            driver_menu.add("Повідомлення")
+            driver_menu.add("Вимкнути повідомлення")
             driver_menu.insert('Надати допомогу')
-            driver_menu.add('Налаштування')
+            driver_menu.add('Редагувати поїздки')
         elif role == "Я Водій":
             driver_menu.add("Додати оголошення")
             driver_menu.insert("Мої поїздки")
-            driver_menu.add('Налаштування')
+            driver_menu.add('Змінити маршрут')
             driver_menu.insert('Шукати допомогу')
 
         return driver_menu

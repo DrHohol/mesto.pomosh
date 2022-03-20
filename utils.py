@@ -12,3 +12,5 @@ def generate_info(drive):
 
     return text
 
+#If anyone is reading this now, know this:
+#I didn't want to write crappy code, I had to...
