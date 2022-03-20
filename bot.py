@@ -453,7 +453,8 @@ async def choose_role(callback_query: types.CallbackQuery):
             callback_query.from_user.id,
             """Нажаль, зараз немає поїздок за вашим напрямом 😔
 
-Вам потрібно перейти у розділ «Налаштування» та змінити напрям вашої поїздки👇""")
+Вам потрібно перейти у розділ «Змінити маршрут» та змінити напрям вашої поїздки👇""",
+reply_markup=Keyboard.menu('Я Пасажир'))
     for drive in drives:
         if drive.departure_time > datetime.now():
             await bot.send_message(
