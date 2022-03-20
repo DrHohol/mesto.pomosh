@@ -41,7 +41,8 @@ async def my_drives(message: types.Message, state: FSMContext):
     drives = controller.get_drive_by({Drive.driver_id: user.id})
     if not drives:
         await message.answer("""
-            Нажаль у вас зараз немає оголошень. Але ви можете це змiнити""")
+            Зараз у вас немає жодної поїздки. Натисність кнопку "Додати оголошення" щоб залишити поїздку👇""",
+            reply_markup=Keyboard.menu("Я Водій"))
     for drive in drives:
         await message.answer(generate_info(drive),
                              reply_markup=Buttons.edit_drive_button(drive.id))
@@ -95,7 +96,7 @@ async def choose_role(message: types.Message, state: FSMContext):
 async def set_driver_menu(message: types.Message, state: FSMContext):
     if await state.get_state():
         await state.finish()
-    if controller.get_or_create_user(message.from_user.id)[1]:
+    if not controller.get_or_create_user(message.from_user.id)[0].name:
         await message.answer("Щоб продовжити введiть iнформацiю про себе. Почнемо з iм'я:")
         await States.set_name.set()
     else:
@@ -105,7 +106,7 @@ async def set_driver_menu(message: types.Message, state: FSMContext):
 @dp.message_handler(Text(equals="Додати оголошення"), state="*")
 async def set_driver_menu(message: types.Message, state: FSMContext):
     await message.answer("""
-📍 Оберіть місто, з якого ви будете виїзджати, щоб люди поруч змогли вас знайти
+📍 Оберіть місто, з якого ви будете виїжджати, щоб люди поруч змогли вас знайти
 
 Якщо у списку не має вашого міста, виберіть обласний центр 👇""",
                          reply_markup=Buttons.select_region())
@@ -117,7 +118,7 @@ async def choose_role(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data.startswith("page_"):
         page = callback_query.data.split("_")[1]
         await callback_query.message.edit_reply_markup(Buttons.select_region(
-            nowhere=True,page=int(page)))
+            nowhere=False,page=int(page)))
     else:
         async with state.proxy() as data:
             data['drive_from'] = callback_query.data
@@ -149,7 +150,7 @@ async def choose_role(callback_query: types.CallbackQuery, state: FSMContext):
                 await state.finish()
             else:
                 data['drive_to'] = callback_query.data
-                await callback_query.message.answer("👫 Оберіть кількість пассажирiв, яких ви можете взяти з собою👇")
+                await callback_query.message.answer("👫 Введіть цифрою кількість пасажирів, яких ви можете взяти з собою👇")
                 await callback_query.answer()
                 await States.max_pass.set()
 
@@ -170,7 +171,7 @@ async def set_driver_menu(message: types.Message, state: FSMContext):
 
 Залиште будь-яку важливу інформацію:
 
-- назва населеного пункту або мiста, звiдки ви будете виїзджати 📍
+- назва населеного пункту або мiста, звiдки ви будете виїжджати 📍
 - чи можна з тваринами 🐶
 - кількість багажу на одного чоловіка 🧳
 - вартість поїздки 💰
@@ -184,7 +185,7 @@ async def set_driver_menu(message: types.Message, state: FSMContext):
 @dp.message_handler(state=States.comment)
 async def set_date(message: types.Message, state: FSMContext):
     if message.text == "Пропустити":
-        message.text = None
+        message.text = "Вiдсутня"
     async with state.proxy() as data:
         if data.get('editing'):
             controller.edit_drive(
@@ -197,7 +198,7 @@ async def set_date(message: types.Message, state: FSMContext):
             await message.answer("""
 🕒 Дата та час
 
-Напишіть дату та час, о котрій ви будете виізджати за прикладом. 
+Напишіть дату та час, о котрій ви будете виїжджати за прикладом. 
 
 Дата та час: 20.03.22 14:30""")
             await States.date.set()
@@ -252,7 +253,7 @@ async def send_notify(drive):
                 text=f"""
 ✅ Знайдена нова поїздка для вас
 📍 Маршрут: {drive.place_from} → {drive.place_to}
-🕒 Дата та час: {drive.departure_time.strftime("%d%m%y %H:%M")}
+🕒 Дата та час: {drive.departure_time.strftime("%d.%m.%y %H:%M")}
 👫 Загальна кількість місць: {drive.max_passengers_amount}
 📞 Спосiб зв’язку: {drive.driver.contact_info}
 📢 Важлива інформація: {drive.comment}""")
@@ -289,7 +290,7 @@ async def edit_date(callback_query: types.CallbackQuery, state: FSMContext):
 @dp.callback_query_handler(Text(equals='route'), state="*")
 async def edit_date(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.message.edit_text("Звiдкi прямуете",
-                                           reply_markup=Buttons.select_region())
+                                           reply_markup=Buttons.select_region(nowhere=False))
     await States.from_drive.set()
 
 
@@ -313,14 +314,14 @@ async def passenger_menu(message: types.Message, state: FSMContext):
         await state.finish()
     await message.answer("""
 ⚠️ НЕ НАДСИЛАЙТЕ ПЕРЕДОПЛАТУ ⚠️
-Пам’ятайте, майже усі перевозчики беруть кошти після завершення поїздки готівкою 🇺🇦💰""",
+Пам’ятайте, майже усі перевiзники беруть кошти після завершення поїздки готівкою 🇺🇦💰""",
         reply_markup=Keyboard.menu("Я Пасажир"))
     user = controller.get_or_create_user(message.from_user.id)[0]
     if not user.place_from:
         await message.answer("""
-📍 Оберіть місто, з якого ви будете виїзджати, щоб люди поруч змогли вас знайти
+📍 Оберіть місто, з якого ви будете виїжджати, щоб люди поруч змогли вас знайти
 
-Якщо у списку не має вашого міста, виберіть обласний центр 👇
+Якщо у списку виїжджати вашого міста, виберіть обласний центр 👇
 """,
                              reply_markup=Buttons.select_region())
         await States.settings_from.set()
@@ -350,7 +351,7 @@ async def set_start(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data.startswith("page_"):
         page = callback_query.data.split("_")[1]
         await callback_query.message.edit_reply_markup(Buttons.select_region(
-            nowhere=True,page=int(page)))
+            nowhere=False,page=int(page)))
     elif callback_query.data.isdigit():
         async with state.proxy() as data:
             data['drive_from'] = callback_query.data
@@ -373,7 +374,7 @@ async def set_finish(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data.startswith("page_"):
         page = callback_query.data.split("_")[1]
         await callback_query.message.edit_reply_markup(Buttons.select_region(
-            nowhere=True,page=int(page)))
+            nowhere=False,page=int(page)))
 
     elif callback_query.data.isdigit():
         async with state.proxy() as data:
@@ -444,7 +445,7 @@ async def choose_role(callback_query: types.CallbackQuery):
     if not drives:
         await bot.send_message(
             callback_query.from_user.id,
-            "Нажаль зараз нема поїздок для вас")
+            "Нажаль зараз немає поїздок для вас")
     for drive in drives:
         await bot.send_message(
             callback_query.from_user.id,
