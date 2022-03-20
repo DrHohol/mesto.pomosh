@@ -8,7 +8,7 @@ class Buttons:
     regions_from = ["Київ", "Харків", "Чернігів", "Суми",
                     "Краматорськ", "Маріуполь", "Мелітополь", "Херсон",
                     "Миколаїв", "Одеса"]
-    regions_to = ["За кордон", "Неважливо", "Бердянськ",
+    regions_to = ["Неважливо", "За кордон", "Бердянськ",
                   "Запоріжжя", "Дніпро", "Полтава", "Вінниця",
                   "Львів", "Івано-Франківськ", "Рівне"]
 
@@ -56,20 +56,21 @@ class Buttons:
     # editing data as driver
     edit_menu = InlineKeyboardMarkup(row_width=1)
     edit_menu.add(InlineKeyboardButton(
-        text='Кiлькiсть пасажирiв', callback_data="pass_count"))
+        text='Маршрут', callback_data='route'))
     edit_menu.add(InlineKeyboardButton(
-        text='Дату', callback_data='date_edit'))
+        text='Кiлькiсть пасажирiв', callback_data="pass_count"))
     edit_menu.add(InlineKeyboardButton(
         text='Коментар', callback_data='com_edit'))
     edit_menu.add(InlineKeyboardButton(
-        text='Маршрут', callback_data='route'))
+        text='Дату', callback_data='date_edit'))
+
 
     # editing data as passenger
     edit_data_menu = InlineKeyboardMarkup(row_width=2)
     edit_data_menu.insert(InlineKeyboardButton(
         text='Маршрут', callback_data=f'u_from'))
     edit_data_menu.insert(InlineKeyboardButton(
-        text='Кiлькiсть', callback_data=f'u_count'))
+        text='Кiлькiсть пасажирiв', callback_data=f'u_count'))
     edit_data_menu.insert(InlineKeyboardButton(
         text="iм'я", callback_data="nm_chng"))
     edit_data_menu.insert(InlineKeyboardButton(
