@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, Column, Integer, Text, String, Boolean, ForeignKey, DateTime
+from sqlalchemy import create_engine, Column, Integer, Text, String, Boolean, ForeignKey, DateTime, BigInteger
 from sqlalchemy.orm import Session, sessionmaker, declarative_base, relationship
 
 
@@ -31,7 +31,7 @@ class User(Base):
     __tablename__ = "user"
 
     id = Column(Integer, autoincrement=True, primary_key=True)
-    chat_id = Column(Integer, unique=True)
+    chat_id = Column(BigInteger, unique=True)
     name = Column(String(255), nullable=True)
     contact_info = Column(String(255), nullable=True)
     place_from = Column(String(255), nullable=True)
