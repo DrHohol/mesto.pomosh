@@ -384,7 +384,7 @@ async def set_finish(callback_query: types.CallbackQuery, state: FSMContext):
     if callback_query.data.startswith("page_"):
         page = callback_query.data.split("_")[1]
         await callback_query.message.edit_reply_markup(Buttons.select_region(
-            nowhere=False, page=int(page)))
+            nowhere=True, page=int(page)))
 
     elif callback_query.data.isdigit():
         async with state.proxy() as data:
