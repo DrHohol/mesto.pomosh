@@ -62,7 +62,8 @@ async def choose_role(message: types.Message, state: FSMContext):
         await States.set_number.set()
         await message.answer("📞 Як з вами можна зв’язатись?")
     else:
-        await message.answer('Інформацію оновлено.')
+        await message.answer('Інформацію оновлено.',
+            reply_markup=Keyboard.menu('Я Водій'))
         controller.edit_user(user,
                              {'name': message.text})
         await state.finish()
@@ -194,7 +195,8 @@ async def set_date(message: types.Message, state: FSMContext):
             controller.edit_drive(
                 data['current_drive'],
                 {'comment': message.text})
-            await message.answer('Коментар оновлено')
+            await message.answer('Коментар оновлено',
+                reply_markup=Keyboard.menu('Я Водій'))
             await state.finish()
         else:
             data['comment'] = message.text
@@ -425,7 +427,8 @@ async def get_drives(message: types.Message, state: FSMContext):
                 controller.edit_user(user,
                                      {'place_from': Buttons.regions_from[int(data['drive_from'])],
                                       'place_to': Buttons.regions_to[int(data['drive_to'])],
-                                      'num_of_passengers': int(message.text)})
+                                      'num_of_passengers': int(message.text),
+                                      'active_search':True})
 
             await message.answer("Інфомація присутня.")
             await state.finish()
