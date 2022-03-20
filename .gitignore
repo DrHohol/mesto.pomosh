@@ -2,3 +2,6 @@
 /__pycache__/
 .idea
 /venv
+/database/__pycache__
+Makefile
+/terraform

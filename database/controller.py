@@ -52,7 +52,7 @@ def edit_drive(drive_id, attrs):
 def get_drive_by(attrs, places=0):
     drive = session.query(Drive)
     for key, value in attrs.items():
-        if key == Drive.place_to and value == "any":
+        if key == Drive.place_to and value == "Неважливо":
             continue
         drive = drive.filter(key == value)
     drive = drive.filter(Drive.max_passengers_amount >= places).all()

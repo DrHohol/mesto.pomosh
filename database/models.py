@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session, sessionmaker, declarative_base, relationship
 
 
 load_dotenv()
-engine = create_engine("postgresql+psycopg2:" + os.environ.get("DATABASE_URL"))
+engine = create_engine(os.environ.get("DATABASE_URL"))
 engine.connect()
 
 session = sessionmaker()
