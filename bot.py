@@ -39,6 +39,9 @@ async def my_drives(message: types.Message, state: FSMContext):
         await state.finish()
     user = controller.get_or_create_user(message.from_user.id)[0]
     drives = controller.get_drive_by({Drive.driver_id: user.id})
+    if not drives:
+        await message.answer("""
+            Нажаль у вас зараз немає оголошень. Але ви можете це змiнити""")
     for drive in drives:
         await message.answer(generate_info(drive),
                              reply_markup=Buttons.edit_drive_button(drive.id))
@@ -139,8 +142,8 @@ async def choose_role(callback_query: types.CallbackQuery, state: FSMContext):
             if data.get('editing'):
                 controller.edit_drive(
                     data['current_drive'],
-                    {'place_from': Buttons.regions[int(data['drive_from'])],
-                     'place_to': Buttons.regions[int(callback_query.data)]})
+                    {'place_from': Buttons.regions_from[int(data['drive_from'])],
+                     'place_to': Buttons.regions_to[int(callback_query.data)]})
                 await callback_query.message.edit_text(
                     "Маршрут змiнений", reply_markup=None)
                 await state.finish()
@@ -172,7 +175,7 @@ async def set_driver_menu(message: types.Message, state: FSMContext):
 - кількість багажу на одного чоловіка 🧳
 - вартість поїздки 💰
 - будь-яку іншу інформацію
-""")
+""", reply_markup=Keyboard.skip)
                 await States.comment.set()
         else:
             await message.answer("Помилка. Можна лише числа >= 1")
@@ -180,6 +183,8 @@ async def set_driver_menu(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=States.comment)
 async def set_date(message: types.Message, state: FSMContext):
+    if message.text == "Пропустити":
+        message.text = None
     async with state.proxy() as data:
         if data.get('editing'):
             controller.edit_drive(
@@ -210,8 +215,8 @@ async def add_drive(message: types.Message, state: FSMContext):
                 await state.finish()
                 del data['editing']
             else:
-                drive = controller.create_drive(Buttons.regions[int(data['drive_from'])],
-                                        Buttons.regions[int(data['drive_to'])],
+                drive = controller.create_drive(Buttons.regions_from[int(data['drive_from'])],
+                                        Buttons.regions_to[int(data['drive_to'])],
                                         message.from_user.id,
                                         data['max_pass'],
                                         data['date'],
@@ -225,7 +230,8 @@ async def add_drive(message: types.Message, state: FSMContext):
 📞 Спосiб зв’язку: {drive.driver.contact_info}
 📢 Важлива інформація: {drive.comment}
 
-Дякуємо вам 🙏""")
+Дякуємо вам 🙏""",
+reply_markup=Keyboard.menu('Я Водій'))
                 await send_notify(drive)
                 await state.finish()
         except Exception as e:
@@ -324,10 +330,18 @@ async def passenger_menu(message: types.Message, state: FSMContext):
             Drive.place_from: user.place_from,
             Drive.place_to: user.place_to},
             places=user.num_of_passengers)
-        for drive in drives:
+        if not drives:
             await message.answer(
-                generate_info(drive),
-                reply_markup=Keyboard.menu('Я Пасажир'))
+                """Нажаль, зараз немає поїздок за вашим напрямом 😔
+
+Вам потрібно перейти у розділ «Налаштування» та змінити напрям вашої поїздки👇
+
+""", reply_markup=Keyboard.menu("Я Пасажир"))
+        else:
+            for drive in drives:
+                await message.answer(
+                    generate_info(drive),
+                    reply_markup=Keyboard.menu('Я Пасажир'))
 
 
 @dp.callback_query_handler(state=States.settings_from)
@@ -337,7 +351,7 @@ async def set_start(callback_query: types.CallbackQuery, state: FSMContext):
         page = callback_query.data.split("_")[1]
         await callback_query.message.edit_reply_markup(Buttons.select_region(
             nowhere=True,page=int(page)))
-    else:
+    elif callback_query.data.isdigit():
         async with state.proxy() as data:
             data['drive_from'] = callback_query.data
         await callback_query.message.edit_text("""
@@ -345,6 +359,9 @@ async def set_start(callback_query: types.CallbackQuery, state: FSMContext):
 
     Якщо у списку немає бажаного міста, виберіть обсласний центр👇""",
                                                reply_markup=Buttons.select_region(nowhere=True))
+        await callback_query.answer()
+        await States.settings_to.set()
+    else:
         await callback_query.answer()
         await States.settings_to.set()
 
@@ -357,27 +374,28 @@ async def set_finish(callback_query: types.CallbackQuery, state: FSMContext):
         page = callback_query.data.split("_")[1]
         await callback_query.message.edit_reply_markup(Buttons.select_region(
             nowhere=True,page=int(page)))
-    else:
-        not if callback_query.message.text.isdigit():
-            state.finish()
+
+    elif callback_query.data.isdigit():
+        async with state.proxy() as data:
+            data['drive_to'] = callback_query.data
+
+        user = controller.get_or_create_user(
+            callback_query.from_user.id)[0]
+        if user.num_of_passengers:
+            controller.edit_user(user,
+                                 {'place_from': Buttons.regions_from[int(data['drive_from'])],
+                                  'place_to': Buttons.regions_to[int(callback_query.data)]})
+            await callback_query.message.edit_text("Оновлено!",
+                                                   reply_markup=Buttons.find)
+            await state.finish()
+
         else:
-            async with state.proxy() as data:
-                data['drive_to'] = callback_query.data
-
-            user = controller.get_or_create_user(
-                callback_query.from_user.id)[0]
-            if user.num_of_passengers:
-                controller.edit_user(user,
-                                     {'place_from': Buttons.regions[int(data['drive_from'])],
-                                      'place_to': Buttons.regions[int(callback_query.data)]})
-                await callback_query.message.edit_text("Оновлено!",
-                                                       reply_markup=Buttons.find)
-                await state.finish()
-
-            else:
-                await callback_query.message.edit_text("👫 Скільки місць в авто вам потрібно?👇",
-                                                       reply_markup=None)
-                await States.settings_pass.set()
+            await callback_query.message.edit_text("👫 Скільки місць в авто вам потрібно?👇",
+                                                   reply_markup=None)
+            await States.settings_pass.set()
+    else:
+        await callback_query.answer()
+        await state.finish()
 
 
 @dp.message_handler(state=States.settings_pass)
@@ -396,15 +414,15 @@ async def get_drives(message: types.Message, state: FSMContext):
         else:
             async with state.proxy() as data:
                 controller.edit_user(user,
-                                     {'place_from': Buttons.regions[int(data['drive_from'])],
-                                      'place_to': Buttons.regions[int(data['drive_to'])],
+                                     {'place_from': Buttons.regions_from[int(data['drive_from'])],
+                                      'place_to': Buttons.regions_to[int(data['drive_to'])],
                                       'num_of_passengers': int(message.text)})
 
             await message.answer("Инфо есть. ща подборка")
             await state.finish()
             drives = controller.get_drive_by({
-                Drive.place_from: Buttons.regions[int(data['drive_from'])],
-                Drive.place_to: Buttons.regions[int(data['drive_to'])]},
+                Drive.place_from: Buttons.regions_from[int(data['drive_from'])],
+                Drive.place_to: Buttons.regions_to[int(data['drive_to'])]},
                 places=int(message.text))
             for drive in drives:
                 await message.answer(
@@ -488,7 +506,7 @@ async def change_pass_count(callback_query: types.CallbackQuery):
 @dp.callback_query_handler(Text(equals='u_from'))
 async def change_route_pass(callback_query: types.CallbackQuery):
 
-    await callback_query.message.answer("Оберiть точку виiзду",
+    await callback_query.message.answer("Оберiть точку виїзду",
                                         reply_markup=Buttons.select_region())
     await callback_query.answer()
     await States.settings_from.set()
