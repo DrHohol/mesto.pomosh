@@ -114,6 +114,8 @@ class Buttons:
         InlineKeyboardButton(text="Показати", callback_data="find_pass")
     )
 
+    regularbtn = InlineKeyboardMarkup().add(InlineKeyboardButton(
+        text='Регулярно',callback_data='regular'))
 
 class Keyboard:
 
