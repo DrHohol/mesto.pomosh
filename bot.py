@@ -286,7 +286,7 @@ async def set_date(callback_query: types.CallbackQuery , state: FSMContext):
                 )
         await callback_query.message.delete()
         await bot.send_message(callback_query.from_user.id,
-            text=f"""
+                text=f"""
 ✅ Ваша пропозиція поїздки створена
 
 📍 Маршрут: {drive.place_from} → {drive.place_to}
@@ -296,6 +296,7 @@ async def set_date(callback_query: types.CallbackQuery , state: FSMContext):
 📢 Важлива інформація: {drive.comment}
 
 Дякуємо вам 🙏""", reply_markup=Keyboard.menu("Я Водій"))
+        await callback_query.answer()
 
 @dp.message_handler(state=States.date)
 async def add_drive(message: types.Message, state: FSMContext):
@@ -307,7 +308,8 @@ async def add_drive(message: types.Message, state: FSMContext):
             if data.get("editing"):
                 controller.edit_drive(
                     data["current_drive"], attrs={
-                        "departure_time": data["date"]}
+                        "departure_time": data["date"],
+                        'regular':False}
                 )
                 await message.answer(f'Дата змінена. Нова дата: {data["date"]}')
                 await state.finish()
@@ -347,7 +349,10 @@ async def send_notify(drive):
     users = controller.get_user_by(
         drive.place_from, drive.place_to, drive.max_passengers_amount
     )
-    print(users)
+    if drive.departure_time:
+        d = f'🕒 Дата та час: {drive.departure_time.strftime("%d.%m.%y %H:%M")}'
+    else:
+        d = "⚠️ Регулярно: Так"
     if users:
         for user in users:
             await bot.send_message(
@@ -355,7 +360,7 @@ async def send_notify(drive):
                 text=f"""
 ✅ Знайдена нова поїздка для вас
 📍 Маршрут: {drive.place_from} → {drive.place_to}
-🕒 Дата та час: {drive.departure_time.strftime("%d.%m.%y %H:%M")}
+{d}
 👫 Загальна кількість місць: {drive.max_passengers_amount}
 📞 Спосіб зв’язку: {drive.driver.contact_info}
 📢 Важлива інформація: {drive.comment}""",
@@ -390,8 +395,7 @@ async def edit_drive(callback_query: types.CallbackQuery, state: FSMContext):
 async def edit_date(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_query.message.answer(
         "Вкажіть дату у\
-форматі ДД.ММ.РР ГГ:ХХ"
-    )
+форматі ДД.ММ.РР ГГ:ХХ")
     await States.date.set()
 
 

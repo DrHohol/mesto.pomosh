@@ -16,7 +16,7 @@ def generate_info(drive):
 	👫 Загальна кількість місць:  {drive.max_passengers_amount}
 	📞 Спосiб зв’язку: {drive.driver.contact_info}
 	📢 Важлива інформація: {drive.comment}"""
-	
+
 	return text
 
 #If anyone is reading this now, know this:
