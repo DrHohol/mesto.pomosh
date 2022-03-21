@@ -23,9 +23,9 @@ class Drive(Base):
     driver_id = Column(Integer, ForeignKey("user.id"))
     driver = relationship("User", backref="drive_driver")
     max_passengers_amount = Column(Integer, default=4)
-    departure_time = Column(DateTime)
+    departure_time = Column(DateTime, nullable=True)
     comment = Column(Text, nullable=True)
-
+    regular = Column(Boolean, default=False)
 
 class User(Base):
     __tablename__ = "user"
