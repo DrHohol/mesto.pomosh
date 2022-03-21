@@ -138,7 +138,19 @@ class Keyboard:
         elif role == "Я Водій":
             driver_menu.add("Додати оголошення")
             driver_menu.insert("Мої поїздки")
-            driver_menu.add("Редагувати поїздки")
+            driver_menu.add("Редагувати інформацію")
             driver_menu.insert("Шукати допомогу")
 
         return driver_menu
+
+    def regions_kb(anywhere=False):
+        reg_kb = ReplyKeyboardMarkup(one_time_keyboard=True,
+        resize_keyboard=True)
+        if anywhere:
+            for region in Buttons.regions_to:
+
+                reg_kb.add(region)
+        else:
+            for region in Buttons.regions_from:
+                reg_kb.add(region)
+        return reg_kb

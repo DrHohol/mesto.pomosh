@@ -31,7 +31,7 @@ class User(Base):
     __tablename__ = "user"
 
     id = Column(Integer, autoincrement=True, primary_key=True)
-    chat_id = Column(BigInteger, unique=True)
+    chat_id = Column(BigInteger(255), unique=True)
     name = Column(String(255), nullable=True)
     contact_info = Column(String(255), nullable=True)
     place_from = Column(String(255), nullable=True)
