@@ -527,7 +527,7 @@ async def choose_role(callback_query: types.CallbackQuery):
             reply_markup=Keyboard.menu("Я Пасажир")
         )
     for drive in drives:
-        if drive.departure_time > datetime.now():
+        if drive.regular or drive.departure_time > datetime.now():
             await bot.send_message(
                 callback_query.from_user.id,
                 generate_info(drive),
