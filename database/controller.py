@@ -23,7 +23,7 @@ def edit_user(user, attrs):
     return user
 
 
-def create_drive(place_from, place_to, driver_id, max_passengers_amount, departure_time, comment=None):
+def create_drive(place_from, place_to, driver_id, max_passengers_amount, departure_time=None, comment=None,regular=False):
     driver, created = get_or_create_user(driver_id)
     if created:
         session.commit()
@@ -33,6 +33,7 @@ def create_drive(place_from, place_to, driver_id, max_passengers_amount, departu
         driver_id=driver.id,
         max_passengers_amount=max_passengers_amount,
         departure_time=departure_time,
+        regular=regular
     )
     if comment:
         drive.comment = comment
