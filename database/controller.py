@@ -74,6 +74,8 @@ def delete_drive(drive):
     session.delete(drive)
     session.commit()
 
+def get_all_users():
+    return session.query(User).all()
 
 def get_all_drive():
     return session.query(Drive).all()

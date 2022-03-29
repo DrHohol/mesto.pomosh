@@ -5,5 +5,6 @@
 /database/__pycache__
 Makefile
 /terraform
-database/alembic/
-database/alembic.ini
+/alembic/
+alembic.ini
+*.mp4
