@@ -1,8 +1,10 @@
+import datetime
 import os
+
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, Column, Integer, Text, String, Boolean, ForeignKey, DateTime, BigInteger
 from sqlalchemy.orm import Session, sessionmaker, declarative_base, relationship
-
+import pytz
 
 load_dotenv()
 engine = create_engine(os.environ.get("DATABASE_URL"))
@@ -26,7 +28,7 @@ class Drive(Base):
     departure_time = Column(DateTime, nullable=True)
     comment = Column(Text, nullable=True)
     regular = Column(Boolean, default=False)
-
+    creation_time = Column(DateTime, default=datetime.datetime.now(tz=pytz.timezone('Europe/Kiev')))
 
 class User(Base):
     __tablename__ = "user"
@@ -39,6 +41,7 @@ class User(Base):
     place_to = Column(String(255), nullable=True)
     active_search = Column(Boolean, default=False)
     num_of_passengers = Column(Integer, default=1)
+    registration_time = Column(DateTime, default=datetime.datetime.now(tz=pytz.timezone('Europe/Kiev')), nullable=True)
 
 #Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)
