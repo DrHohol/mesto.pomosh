@@ -49,6 +49,7 @@ async def create_drive(place_from, place_to, driver_id, max_passengers_amount, d
     driver, created = await get_or_create_user(driver_id)
     async with async_session() as session:
         async with session.begin():
+            session.add(driver)
             drive = Drive(
                 place_from=place_from,
                 place_to=place_to,
