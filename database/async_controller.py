@@ -129,6 +129,15 @@ async def get_all_drive():
             session.expunge_all()
             return drives
 
+async def get_all_users():
+    async with async_session() as session:
+        async with session.begin():
+            users = await session.execute(
+                select(User)
+            )
+            users = users.scalars().all()
+            return users
+
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
