@@ -5,7 +5,7 @@ import os
 import pytz
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.future import select
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, subqueryload
 from database.models import User, Drive
 
 db_link = os.environ.get("DATABASE_URL_ASYNC")
@@ -83,7 +83,7 @@ async def edit_drive(drive_id, attrs):
 async def get_drive_by(attrs, places=0):
     async with async_session() as session:
         async with session.begin():
-            drive = select(Drive, Drive.driver)
+            drive = select(Drive).options(subqueryload(Drive.driver))
             for key, value in attrs.items():
                 if key == Drive.place_to and value == "Неважливо":
                     continue
