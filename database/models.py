@@ -42,5 +42,5 @@ class User(Base):
     num_of_passengers = Column(Integer, default=1)
     registration_time = Column(DateTime, default=datetime.datetime.utcnow() + datetime.timedelta(hours=3), nullable=True)
 
-Base.metadata.drop_all(engine)
+# Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)
