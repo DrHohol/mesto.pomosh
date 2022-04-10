@@ -290,7 +290,7 @@ async def set_date(callback_query: types.CallbackQuery, state: FSMContext):
 📍 Маршрут: {drive.place_from} → {drive.place_to}
 ⚠️ Регулярно: Так
 👫 Загальна кількість місць: {drive.max_passengers_amount}
-📞 Спосіб зв’язку: {drive.contact_info}
+📞 Спосіб зв’язку: {drive.driver.contact_info}
 📢 Важлива інформація: {drive.comment}
 Дякуємо вам 🙏""",
             reply_markup=Keyboard.menu("Я Водій"),
@@ -434,14 +434,13 @@ async def send_notify(drive):
 
 @dp.callback_query_handler(Text(startswith="del"), state="*")
 async def delete_drive(callback_query: types.CallbackQuery, state: FSMContext):
-    drive_id = callback_query.data.split("_")[1]
+    drive_id = int(callback_query.data.split("_")[1])
     drive = await controller.get_drive_by({Drive.id: drive_id})
-    await controller.delete_drive(drive)
+    await controller.delete_drive(drive[0])
     await callback_query.message.delete()
     await bot.send_message(
         callback_query.from_user.id, "Видалено", reply_markup=Keyboard.menu("Я Водій")
     )
-    await bot.send_poll()
     await callback_query.answer()
 
 
