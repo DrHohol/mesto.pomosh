@@ -6,7 +6,7 @@ def generate_info(drive):
 		r = '🕒 Дата та час: {drive.departure_time.strftime("%d.%m.%y %H:%M")}'
 
 	else:
-		d = "⚠️ Регулярно: Так"
+		r = "⚠️ Регулярно: Так"
 	text = f"""
 📍 Маршрут: {drive.place_from} → {drive.place_to}
 {r}
