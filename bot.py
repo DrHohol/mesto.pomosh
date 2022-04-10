@@ -74,7 +74,7 @@ async def passenger_menu(message: types.Message, state: FSMContext):
         else:
             for drive in drives:
                 await message.answer(
-                    info(drive[0],drive[1]), reply_markup=Keyboard.menu("Я Пасажир")
+                    generate_info(drive), reply_markup=Keyboard.menu("Я Пасажир")
                 )
 
 
@@ -109,7 +109,7 @@ async def my_drives(message: types.Message, state: FSMContext):
         )
     for drive in drives:
         await message.answer(
-            generate_info(drive[0],drive[1]), reply_markup=Buttons.edit_drive_button(drive[0].id)
+            generate_info(drive), reply_markup=Buttons.edit_drive_button(drive.id)
         )
     del drives
     # drives = Controller.get_drives
@@ -287,11 +287,11 @@ async def set_date(callback_query: types.CallbackQuery, state: FSMContext):
             callback_query.from_user.id,
             text=f"""
 ✅ Ваша пропозиція поїздки створена
-📍 Маршрут: {drive[0].place_from} → {drive[0].place_to}
+📍 Маршрут: {drive.place_from} → {drive.place_to}
 ⚠️ Регулярно: Так
-👫 Загальна кількість місць: {drive[0].max_passengers_amount}
-📞 Спосіб зв’язку: {drive[1].contact_info}
-📢 Важлива інформація: {drive[0].comment}
+👫 Загальна кількість місць: {drive.max_passengers_amount}
+📞 Спосіб зв’язку: {drive.contact_info}
+📢 Важлива інформація: {drive.comment}
 Дякуємо вам 🙏""",
             reply_markup=Keyboard.menu("Я Водій"),
         )
@@ -325,11 +325,11 @@ async def add_drive(message: types.Message, state: FSMContext):
                 await message.answer(
                     f"""
 ✅ Ваша пропозиція поїздки створена
-📍 Маршрут: {drive[0].place_from} → {drive[0].place_to}
-🕒 Дата та час: {drive[0].departure_time.strftime("%d.%m.%y %H:%M")}
-👫 Загальна кількість місць: {drive[0].max_passengers_amount}
-📞 Спосіб зв’язку: {drive[1].contact_info}
-📢 Важлива інформація: {drive[0].comment}
+📍 Маршрут: {drive.place_from} → {drive.place_to}
+🕒 Дата та час: {drive.departure_time.strftime("%d.%m.%y %H:%M")}
+👫 Загальна кількість місць: {drive.max_passengers_amount}
+📞 Спосіб зв’язку: {drive.driver.contact_info}
+📢 Важлива інформація: {drive.comment}
 Дякуємо вам 🙏""",
                     reply_markup=Keyboard.menu("Я Водій"),
                 )
@@ -417,9 +417,9 @@ async def admin_spam(message: types.ContentType.ANY, state: FSMContext):
 
 async def send_notify(drive):
     users = await controller.get_user_by(
-        drive[0].place_from, drive[0].place_to, drive[0].max_passengers_amount
+        drive.place_from, drive.place_to, drive.max_passengers_amount
     )
-    text = generate_info(drive[0],drive[1])
+    text = generate_info(drive)
 
     if users:
         for user in users:
@@ -436,7 +436,7 @@ async def send_notify(drive):
 async def delete_drive(callback_query: types.CallbackQuery, state: FSMContext):
     drive_id = callback_query.data.split("_")[1]
     drive = await controller.get_drive_by({Drive.id: drive_id})
-    await controller.delete_drive(drive[0])
+    await controller.delete_drive(drive)
     await callback_query.message.delete()
     await bot.send_message(
         callback_query.from_user.id, "Видалено", reply_markup=Keyboard.menu("Я Водій")
@@ -573,7 +573,7 @@ async def get_drives(message: types.Message, state: FSMContext):
             else:
                 for drive in drives:
                     await message.answer(
-                        generate_info(drive[0],drive[1]), reply_markup=Keyboard.menu("Я Пасажир")
+                        generate_info(drive), reply_markup=Keyboard.menu("Я Пасажир")
                     )
     else:
         await message.answer("Невірний формат. Введіть будь ласка цифру, більшу за 0")
@@ -597,10 +597,10 @@ async def choose_role(callback_query: types.CallbackQuery):
             reply_markup=Keyboard.menu("Я Пасажир"),
         )
     for drive in drives:
-        if drive[0].regular or drive[0].departure_time > datetime.now():
+        if drive.regular or drive.departure_time > datetime.now():
             await bot.send_message(
                 callback_query.from_user.id,
-                generate_info(drive[0],[1]),
+                generate_info(drive),
                 reply_markup=Keyboard.menu("Я Пасажир"),
             )
 

@@ -1,7 +1,7 @@
 from datetime import datetime
 
 
-def generate_info(drive,driver):
+def generate_info(drive):
 	if drive.departure_time:
 		r = '🕒 Дата та час: {drive.departure_time.strftime("%d.%m.%y %H:%M")}'
 
@@ -11,7 +11,7 @@ def generate_info(drive,driver):
 📍 Маршрут: {drive.place_from} → {drive.place_to}
 {r}
 👫 Загальна кількість місць:  {drive.max_passengers_amount}
-📞 Спосiб зв’язку: {driver.contact_info}
+📞 Спосiб зв’язку: {drive.driver.contact_info}
 📢 Важлива інформація: {drive.comment}"""
 
 	return text
