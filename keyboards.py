@@ -73,6 +73,9 @@ class Keyboard:
     role_menu.add("Надати допомогу")
     role_menu.add("Шукати допомогу")
 
+    admin_menu = ReplyKeyboardMarkup(resize_keyboard=True).add(
+        'Вийти')
+
     skip = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True).add(
         "Пропустити"
     )

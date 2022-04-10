@@ -17,3 +17,4 @@ class States(StatesGroup):
 	settings_from = State()
 	settings_to = State()
 	settings_pass = State()
+	admin = State()
