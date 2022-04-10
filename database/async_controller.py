@@ -46,7 +46,7 @@ async def edit_user(user, attrs):
 
 
 async def create_drive(place_from, place_to, driver_id, max_passengers_amount, departure_time=None, comment=None,regular=False):
-    driver, created = get_or_create_user(driver_id)
+    driver, created = await get_or_create_user(driver_id)
     async with async_session() as session:
         async with session.begin():
             drive = Drive(
