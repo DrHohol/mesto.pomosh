@@ -1,4 +1,8 @@
+import asyncio
+import datetime
 import os
+
+import pytz
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
@@ -14,7 +18,7 @@ async_session = sessionmaker(
 
 
 async def get_or_create_user(chat_id):
-    async with async_session as session:
+    async with async_session() as session:
         async with session.begin():
             user = await session.execute(
                 select(User).filter(User.chat_id == chat_id)
@@ -31,7 +35,7 @@ async def get_or_create_user(chat_id):
 
 
 async def edit_user(user, attrs):
-    async with async_session as session:
+    async with async_session() as session:
         async with session.begin():
             session.add(user)
             for key, value in attrs.items():
@@ -43,7 +47,7 @@ async def edit_user(user, attrs):
 
 async def create_drive(place_from, place_to, driver_id, max_passengers_amount, departure_time=None, comment=None,regular=False):
     driver, created = get_or_create_user(driver_id)
-    async with async_session as session:
+    async with async_session() as session:
         async with session.begin():
             drive = Drive(
                 place_from=place_from,
@@ -62,7 +66,7 @@ async def create_drive(place_from, place_to, driver_id, max_passengers_amount, d
 
 
 async def edit_drive(drive_id, attrs):
-    async with async_session as session:
+    async with async_session() as session:
         async with session.begin():
             drive = await session.execute(
                 select(Drive).filter(Drive.id == drive_id)
@@ -76,7 +80,7 @@ async def edit_drive(drive_id, attrs):
 
 
 async def get_drive_by(attrs, places=0):
-    async with async_session as session:
+    async with async_session() as session:
         async with session.begin():
             drive = select(Drive)
             for key, value in attrs.items():
@@ -107,7 +111,7 @@ async def get_user_by(place_from, place_to=None, num_of_passenger=None):
 
 
 async def delete_drive(drive):
-    async with async_session as session:
+    async with async_session() as session:
         async with session.begin():
             session.add(drive)
             await session.delete(drive)
@@ -126,4 +130,7 @@ async def get_all_drive():
 
 
 if __name__ == "__main__":
-    driver, created = get_or_create_user(1235)
+    loop = asyncio.get_event_loop()
+    driver, created = loop.run_until_complete(get_or_create_user(1235))
+    print(driver, created)
+    print(driver.registration_time)
