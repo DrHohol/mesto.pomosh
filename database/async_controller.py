@@ -83,7 +83,7 @@ async def edit_drive(drive_id, attrs):
 async def get_drive_by(attrs, places=0):
     async with async_session() as session:
         async with session.begin():
-            drive = select(Drive)
+            drive = select(Drive, Drive.driver)
             for key, value in attrs.items():
                 if key == Drive.place_to and value == "Неважливо":
                     continue
@@ -93,7 +93,7 @@ async def get_drive_by(attrs, places=0):
                 drive
             )
             drive = drive.scalars().all()
-            return drive, drive.driver
+            return drive
 
 
 async def get_user_by(place_from, place_to=None, num_of_passenger=None):
