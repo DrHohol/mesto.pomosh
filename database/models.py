@@ -23,7 +23,7 @@ class Drive(Base):
     place_from = Column(String(255))
     place_to = Column(String(255))
     driver_id = Column(Integer, ForeignKey("user.id"))
-    driver = relationship("User", backref="drive_driver", lazy='subquery')
+    driver = relationship("User", backref="drive_driver", lazy='joined')
     max_passengers_amount = Column(Integer, default=4)
     departure_time = Column(DateTime, nullable=True)
     comment = Column(Text, nullable=True)
@@ -43,5 +43,5 @@ class User(Base):
     num_of_passengers = Column(Integer, default=1)
     registration_time = Column(DateTime(timezone=True), default=datetime.datetime.now(tz=pytz.timezone(zone='Europe/Kiev')), nullable=True)
 
-#Base.metadata.drop_all(engine)
+# Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)
