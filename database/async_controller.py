@@ -63,7 +63,7 @@ async def create_drive(place_from, place_to, driver_id, max_passengers_amount, d
             session.add(drive)
             await session.commit()
             session.expunge(drive)
-            return drive
+            return drive, driver
 
 
 async def edit_drive(drive_id, attrs):
@@ -93,7 +93,7 @@ async def get_drive_by(attrs, places=0):
                 drive
             )
             drive = drive.scalars().all()
-            return drive
+            return drive, drive.driver
 
 
 async def get_user_by(place_from, place_to=None, num_of_passenger=None):
