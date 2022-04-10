@@ -63,7 +63,7 @@ async def create_drive(place_from, place_to, driver_id, max_passengers_amount, d
             session.add(drive)
             await session.commit()
             session.expunge(drive)
-            return drive, driver
+            return drive
 
 
 async def edit_drive(drive_id, attrs):
@@ -128,6 +128,15 @@ async def get_all_drive():
             drives = drives.scalars().all()
             session.expunge_all()
             return drives
+
+async def get_all_users():
+    async with async_session() as session:
+        async with session.begin():
+            users = await session.execute(
+                select(User)
+            )
+            users = users.scalars().all()
+            return users
 
 
 if __name__ == "__main__":

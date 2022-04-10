@@ -23,7 +23,7 @@ class Drive(Base):
     place_from = Column(String(255))
     place_to = Column(String(255))
     driver_id = Column(Integer, ForeignKey("user.id"))
-    driver = relationship("User", backref="drive_driver")
+    driver = relationship("User", backref="drive_driver", lazy='subquery')
     max_passengers_amount = Column(Integer, default=4)
     departure_time = Column(DateTime, nullable=True)
     comment = Column(Text, nullable=True)
