@@ -63,7 +63,7 @@ async def create_drive(place_from, place_to, driver_id, max_passengers_amount, d
             session.add(drive)
             await session.commit()
             session.expunge(drive)
-            return drive, driver
+            return drive
 
 
 async def edit_drive(drive_id, attrs):
