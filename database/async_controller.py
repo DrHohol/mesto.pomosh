@@ -62,7 +62,9 @@ async def create_drive(place_from, place_to, driver_id, max_passengers_amount, d
                 drive.comment = comment
             session.add(drive)
             await session.commit()
-            session.expunge(drive)
+            drive = await session.execute(
+                select(Drive).options(subqueryload(Drive.driver)).filter(Drive.id == drive.id)
+            )
             return drive
 
 
